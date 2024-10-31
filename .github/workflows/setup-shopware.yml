@@ -1,0 +1,42 @@
+name: Call setup shopware plugin test
+
+on:
+  workflow_dispatch:
+    inputs:
+      shopware_version:
+        description: "Shopware version"
+        required: true
+        type: string
+        default: 'v6.6.7.0'
+      php_version:
+        description: "PHP version"
+        required: false
+        type: string
+        default: '8.2'
+
+env:
+    PLUGIN_NAME: MyPhpUnitPlugin
+
+jobs:
+  e2etest:
+    runs-on: ubuntu-latest
+    outputs:
+      PLUGIN_NAME: ${{ steps.set-vars.outputs.PLUGIN_NAME }}
+    steps:
+      - name: Setup Shopware
+        uses: shopware/setup-shopware@v2
+        with:
+          shopware-version: ${{ inputs.shopware_version }}
+          php-version: ${{ inputs.php_version }}
+          install: true
+
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: custom/plugins/${{ env.PLUGIN_NAME }}
+
+      - name: Run phpunit test
+        run: |
+          ./vendor/bin/phpunit --configuration="custom/plugins/MyPhpUnitPlugin"

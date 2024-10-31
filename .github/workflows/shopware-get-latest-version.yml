@@ -1,0 +1,43 @@
+name: Check for Remote Repository Updates
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check-updates:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v4
+
+      - name: Get latest tag from remote repository
+        id: get_remote_version
+        run: |
+          REMOTE_VERSION=$(curl -s https://api.github.com/repos/shopware/shopware/tags | jq -r '.[0].name')
+          echo "remote_version=${REMOTE_VERSION}" >> $GITHUB_ENV
+
+      - name: Get latest version from local repository
+        id: get_local_version
+        run: |
+          LOCAL_VERSION=$(cat sw_version.txt)
+          echo "local_version=${LOCAL_VERSION}" >> $GITHUB_ENV
+
+      - name: Update sw_version.txt if new version is available
+        if: env.remote_version != env.local_version
+        run: |
+          echo "New version available: ${remote_version}. Updating sw_version.txt..."
+          echo "${remote_version}" > sw_version.txt
+
+      - name: Create Pull Request
+        if: env.remote_version != env.local_version
+        uses: peter-evans/create-pull-request@v7
+        with:
+          add-paths: |
+            sw_version.txt
+          assignees: Isengo1989
+          author: shopwareBot <example@example.com>
+          token: ${{ secrets.PR_SECRET_TOKEN }}
+          delete-branch: true
+          commit-message: Update sw_version.txt to ${{ env.remote_version }}
+          branch: update-sw-version
