@@ -29,8 +29,25 @@ jobs:
           echo "New version available: ${remote_version}. Updating sw_version.txt..."
           echo "${remote_version}" > sw_version.txt
 
-      - name: Create Pull Request
+      - name: Trigger setup-shopware workflow
         if: env.remote_version != env.local_version
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: setup-shopware.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+          inputs: |
+            shopware_version: ${{ env.remote_version }}
+
+  create-pr:
+    needs: check-updates
+    runs-on: ubuntu-latest
+    if: needs.check-updates.result == 'success'
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v4
+
+      - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
           add-paths: |
