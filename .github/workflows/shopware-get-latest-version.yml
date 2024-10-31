@@ -47,6 +47,9 @@ jobs:
       - name: Checkout this repository
         uses: actions/checkout@v4
 
+      - name: Debug sw_version.txt
+        run: cat sw_version.txt
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
