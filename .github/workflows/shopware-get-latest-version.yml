@@ -31,13 +31,9 @@ jobs:
 
       - name: Trigger setup-shopware workflow
         if: env.remote_version != env.local_version
-        uses: benc-uk/workflow-dispatch@v1
+        uses: ./.github/workflows/setup-shopware.yml
         with:
-          workflow: setup-shopware.yml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: main
-          inputs: |
-            shopware_version: ${{ env.remote_version }}
+          shopware_version: ${{ env.remote_version }}
 
   create-pr:
     needs: check-updates
