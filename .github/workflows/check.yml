@@ -1,0 +1,64 @@
+name: Shopware Version Final Check and Setup
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check-and-setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v4
+
+      - name: Get latest tag from remote repository
+        id: get_remote_version
+        run: |
+          REMOTE_VERSION=$(curl -s https://api.github.com/repos/shopware/shopware/tags | jq -r '.[0].name')
+          echo "::set-output name=remote_version::${REMOTE_VERSION}"
+          echo "remote_version=${REMOTE_VERSION}" >> $GITHUB_ENV
+
+      - name: Get latest version from local repository
+        id: get_local_version
+        run: |
+          LOCAL_VERSION=$(cat sw_version.txt)
+          echo "::set-output name=local_version::${LOCAL_VERSION}"
+          echo "local_version=${LOCAL_VERSION}" >> $GITHUB_ENV
+
+      - name: Check if version has changed
+        id: version_check
+        run: |
+          if [ "${{ steps.get_remote_version.outputs.remote_version }}" != "${{ steps.get_local_version.outputs.local_version }}" ]; then
+            echo "Version has changed."
+            echo "version_changed=true" >> $GITHUB_ENV
+          else
+            echo "Version has not changed."
+            echo "version_changed=false" >> $GITHUB_ENV
+
+      - name: Setup Shopware
+        if: env.version_changed == 'true'
+        id: setup_shopware
+        uses: shopware/setup-shopware@v2
+        with:
+          shopware-version: ${{ steps.get_remote_version.outputs.remote_version }}
+          php-version: '8.2'
+          install: true
+        continue-on-error: true
+
+      - name: Update sw_version.txt
+        if: env.version_changed == 'true' && steps.setup_shopware.outcome == 'success'
+        run: |
+          echo "${{ steps.get_remote_version.outputs.remote_version }}" > sw_version.txt
+
+      - name: Create Pull Request
+        if: env.version_changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          add-paths: |
+            sw_version.txt
+          assignees: Isengo1989
+          author: shopwareBot <example@example.com>
+          token: ${{ secrets.PHPUNIT_TOKEN }}
+          delete-branch: true
+          commit-message: |
+            ${{ steps.setup_shopware.outcome == 'success' && 'Update sw_version.txt to ' || 'Setup Shopware failed for version ' }}${{ steps.get_remote_version.outputs.remote_version }}
+          branch: update-sw-version
