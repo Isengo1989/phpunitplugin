@@ -33,6 +33,7 @@ jobs:
           else
             echo "Version has not changed."
             echo "version_changed=false" >> $GITHUB_ENV
+          fi
 
       - name: Setup Shopware
         if: env.version_changed == 'true'
