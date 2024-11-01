@@ -14,15 +14,15 @@ jobs:
         id: get_remote_version
         run: |
           REMOTE_VERSION=$(curl -s https://api.github.com/repos/shopware/shopware/tags | jq -r '.[0].name')
-          echo "::set-output name=remote_version::${REMOTE_VERSION}"
           echo "remote_version=${REMOTE_VERSION}" >> $GITHUB_ENV
+          echo "::set-output name=remote_version::${REMOTE_VERSION}"
 
       - name: Get latest version from local repository
         id: get_local_version
         run: |
           LOCAL_VERSION=$(cat sw_version.txt)
-          echo "::set-output name=local_version::${LOCAL_VERSION}"
           echo "local_version=${LOCAL_VERSION}" >> $GITHUB_ENV
+          echo "::set-output name=local_version::${LOCAL_VERSION}"
 
       - name: Check if version has changed
         id: version_check
