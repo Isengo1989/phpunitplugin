@@ -1,19 +1,9 @@
 name: Call setup shopware plugin test
 
 on:
-  repository_dispatch:
-    types: [setup-shopware]
-    inputs:
-      shopware_version:
-        description: "Shopware version"
-        required: true
-        type: string
-        default: 'v6.6.7.0'
-      php_version:
-        description: "PHP version"
-        required: false
-        type: string
-        default: '8.2'
+  pull_request:
+    branches:
+      - main
 
 env:
     PLUGIN_NAME: MyPhpUnitPlugin
