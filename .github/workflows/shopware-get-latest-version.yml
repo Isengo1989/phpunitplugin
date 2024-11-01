@@ -44,6 +44,9 @@ jobs:
       - name: Checkout this repository
         uses: actions/checkout@v4
 
+      - name: Debug remote_version
+        run: echo ${{ needs.check-updates.outputs.remote_version }}
+
       - name: Download sw_version.txt
         uses: actions/download-artifact@v3
         with:
