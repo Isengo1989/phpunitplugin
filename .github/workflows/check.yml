@@ -1,7 +1,9 @@
 name: Shopware Version Final Check and Setup
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   check-and-setup:
