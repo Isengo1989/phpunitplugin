@@ -39,7 +39,7 @@ jobs:
   create-pr:
     needs: check-updates
     runs-on: ubuntu-latest
-    if: needs.check-updates.result == 'success'
+    if: needs.check-updates.result == 'success' && needs.check-updates.outputs.remote_version != needs.check-updates.outputs.local_version
     steps:
       - name: Checkout this repository
         uses: actions/checkout@v4
