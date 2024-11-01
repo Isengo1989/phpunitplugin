@@ -9,7 +9,7 @@ env:
     PLUGIN_NAME: MyPhpUnitPlugin
 
 jobs:
-  e2etest:
+  phpunit-test:
     runs-on: ubuntu-latest
     outputs:
       PLUGIN_NAME: ${{ steps.set-vars.outputs.PLUGIN_NAME }}
