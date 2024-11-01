@@ -29,21 +29,29 @@ jobs:
           echo "New version available: ${remote_version}. Updating sw_version.txt..."
           echo "${remote_version}" > sw_version.txt
 
-      - name: Trigger setup-shopware workflow
+      - name: Upload sw_version.txt
         if: env.remote_version != env.local_version
-        run: |
-          curl -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${{ secrets.PHPUNIT_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/dispatches \
-            -d '{"event_type":"setup-shopware","client_payload":{"shopware_version":"${{ env.remote_version }}"}}'
-  
+        uses: actions/upload-artifact@v3
+        with:
+          name: sw_version
+          path: sw_version.txt
 
   create-pr:
     needs: check-updates
     runs-on: ubuntu-latest
     if: needs.check-updates.result == 'success'
     steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v4
+
+      - name: Download sw_version.txt
+        uses: actions/download-artifact@v3
+        with:
+          name: sw_version
+
+      - name: Debug sw_version.txt
+        run: cat sw_version.txt
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
@@ -53,5 +61,5 @@ jobs:
           author: shopwareBot <example@example.com>
           token: ${{ secrets.PHPUNIT_TOKEN }}
           delete-branch: true
-          commit-message: Update sw_version.txt to ${{ env.remote_version }}
+          commit-message: Update sw_version.txt to ${{ needs.check-updates.outputs.remote_version }}
           branch: update-sw-version
