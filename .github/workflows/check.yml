@@ -62,7 +62,5 @@ jobs:
           author: shopwareBot <example@example.com>
           token: ${{ secrets.PHPUNIT_TOKEN }}
           delete-branch: true
-          commit-message: |
-            ${{ steps.setup_shopware.outcome == 'success' && 'Update sw_version.txt to ' || 'Setup Shopware failed for version ' }}${{ steps.get_remote_version.outputs.remote_version }}
+          commit-message: "Test: Update sw_version.txt to ${{ steps.get_remote_version.outputs.remote_version }}"
           branch: update-sw-version
-          base: main
