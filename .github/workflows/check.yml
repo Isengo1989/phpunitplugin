@@ -56,6 +56,7 @@ jobs:
         if: env.version_changed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
+          repository: Isengo1989/phpunitplugin
           add-paths: |
             sw_version.txt
           assignees: Isengo1989
@@ -64,3 +65,4 @@ jobs:
           delete-branch: true
           commit-message: Update sw_version.txt to ${{ needs.check-updates.outputs.remote_version }}
           branch: update-sw-version
+          base: main
