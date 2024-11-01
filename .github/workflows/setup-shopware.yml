@@ -1,7 +1,7 @@
 name: Call setup shopware plugin test
 
 on:
-  pull_request:
+  push:
     branches:
       - main
 
