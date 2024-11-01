@@ -1,7 +1,8 @@
 name: Call setup shopware plugin test
 
 on:
-  workflow_dispatch:
+  repository_dispatch:
+    types: [setup-shopware]
     inputs:
       shopware_version:
         description: "Shopware version"
